@@ -94,7 +94,8 @@ package body HTML is
    begin
       Write
         (H.File,
-         "<p><a href=""" & HRef & """>Back to " & Name & "</a></p>" & LF);
+         "<p><a class=""nav"" href=""" & HRef & """>Back to "
+         & Name & "</a></p>" & LF);
    end Add_Backlink;
 
    ----------------
@@ -122,7 +123,9 @@ package body HTML is
    procedure Add_Item (H : in out Handle; Name, HRef : String) is
    begin
       Write
-        (H.File, "<li><a href=""" & HRef & """>" & Name & "</a></li>" & LF);
+        (H.File,
+         "<li><a class=""nav"" href=""" & HRef & """>"
+         & Name & "</a></li>" & LF);
    end Add_Item;
 
    --------------
@@ -215,12 +218,15 @@ package body HTML is
       Write (Main_Style, "    color: #a0a0a0;" & LF);
       Write (Main_Style, "}" & LF);
       Write (Main_Style, "a {" & LF);
-      Write (Main_Style, "    color: #808080;" & LF);
-      Write (Main_Style, "    font-weight: bold;" & LF);
+      Write (Main_Style, "    color: inherit;" & LF);
       Write (Main_Style, "    text-decoration: none;" & LF);
       Write (Main_Style, "}" & LF);
       Write (Main_Style, "a:hover {" & LF);
       Write (Main_Style, "    text-decoration: underline;" & LF);
+      Write (Main_Style, "}" & LF);
+      Write (Main_Style, "a.nav {" & LF);
+      Write (Main_Style, "    color: #808080;" & LF);
+      Write (Main_Style, "    font-weight: bold;" & LF);
       Write (Main_Style, "}" & LF);
       Close (Main_Style);
 
