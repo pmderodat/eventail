@@ -109,11 +109,19 @@ package body Repositories is
             declare
                use Source_File_Maps;
 
-               Position : constant Cursor :=
+               Position : Cursor :=
                   Project_Group.Source_Files.Find (Lib_Info.Source_File);
             begin
                if Position /= No_Element then
                   Element (Position).XRef_File := Lib_Info.Library_File;
+
+                  --  This Library File also belongs to the "other file"
+
+                  Position := Project_Group.Source_Files.Find
+                    (Project_Group.Tree.Other_File (Lib_Info.Source_File));
+                  if Position /= No_Element then
+                     Element (Position).XRef_File := Lib_Info.Library_File;
+                  end if;
                end if;
             end;
          end loop;
