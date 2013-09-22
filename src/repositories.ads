@@ -41,8 +41,9 @@ package Repositories is
    --  when dealing with dependency lines in Library Files.
 
    type Repository_Type is record
-      Env            : Project_Environment_Access := null;
-      Project_Groups : Project_Group_Maps.Map;
+      Env                  : Project_Environment_Access := null;
+      Project_Groups       : Project_Group_Maps.Map;
+      Out_Of_Scope_Sources : Source_File_Maps.Map;
    end record;
 
    type Project_Group_Type is record
@@ -52,13 +53,17 @@ package Repositories is
    end record;
 
    type Source_File_Type is record
-      Language  : GNATCOLL.Symbols.Symbol;
-      XRef_File : Virtual_File;
-      Displayed : Boolean;
+      Language      : GNATCOLL.Symbols.Symbol;
+      Project_Group : Project_Group_Access;
+      XRef_File     : Virtual_File;
+      Displayed     : Boolean;
    end record;
 
    Languages : constant GNATCOLL.Symbols.Symbol_Table_Access :=
       GNATCOLL.Symbols.Allocate;
+
+   Unknown_Language : constant GNATCOLL.Symbols.Symbol :=
+      GNATCOLL.Symbols.Find (Languages, "text");
 
    package Project_File_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Natural,
@@ -73,12 +78,12 @@ package Repositories is
    --  Free a repository and all projects it contains
 
    function Resolve_Source_File
-     (Repository : Repository_Type;
+     (Repository : in out Repository_Type;
       File       : Virtual_File) return Source_File_Maps.Cursor;
-   --  Resolve a filename to a registered source file, or return No_Element if
-   --  There is no such file in all loaded projects. If the source file is
-   --  registered in several project groups, return the one in which it is
-   --  visible. If the source file is visible nowhere, the returned associated
-   --  project group is implementation defined.
+   --  Resolve a filename to a registered source file, or register an "out of
+   --  scope" source file if there is no such file in all loaded projects.  If
+   --  the source file is registered in several project groups, return the one
+   --  in which it is visible. If the source file is visible nowhere, the
+   --  returned associated project group is implementation defined.
 
 end Repositories;

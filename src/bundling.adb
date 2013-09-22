@@ -24,7 +24,7 @@ package body Bundling is
    -- Setup_Repository --
    ----------------------
 
-   procedure Setup_Repository (Repository : Repository_Type) is
+   procedure Setup_Repository (Repository : in out Repository_Type) is
       Index : HTML.Handle :=
          HTML.Start
            (Create (+"index.html"),
@@ -61,7 +61,7 @@ package body Bundling is
    --------------------------
 
    procedure Bundle_Project_Group
-     (Repository    : Repository_Type;
+     (Repository    : in out Repository_Type;
       Project_Group : Project_Group_Type)
    is
       pragma Unreferenced (Repository);
@@ -97,7 +97,7 @@ package body Bundling is
    ------------------------
 
    procedure Bundle_Source_File
-     (Repository    : Repository_Type;
+     (Repository    : in out Repository_Type;
       Project_Group : Project_Group_Type;
       Source_File   : Virtual_File;
       Source_Info   : Source_File_Type)
@@ -126,7 +126,7 @@ package body Bundling is
    -- Bundle --
    ------------
 
-   procedure Bundle (Repository : Repository_Type) is
+   procedure Bundle (Repository : in out Repository_Type) is
       use Source_File_Maps;
    begin
       Setup_Repository (Repository);

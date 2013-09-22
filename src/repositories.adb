@@ -80,12 +80,13 @@ package body Repositories is
                      Project_Group.Source_Files.Replace_Element
                        (Position,
                         new Source_File_Type'
-                          (Language  =>
+                          (Language      =>
                               GNATCOLL.Symbols.Find
                                 (Languages,
                                  Language (Info (Project_Group.Tree, Src))),
-                           XRef_File => No_File,
-                           Displayed => not Recursive));
+                           Project_Group => Project_Group,
+                           XRef_File     => No_File,
+                           Displayed     => not Recursive));
 
                      --  Update the full filenames index
 
@@ -142,7 +143,7 @@ package body Repositories is
    -------------------------
 
    function Resolve_Source_File
-     (Repository : Repository_Type;
+     (Repository : in out Repository_Type;
       File       : Virtual_File) return Source_File_Maps.Cursor
    is
       use Source_File_Maps;
@@ -183,6 +184,25 @@ package body Repositories is
             end if;
          end if;
       end loop;
+
+      --  If this source file is completely out of the scope of the repository,
+      --  keep track of it anyway.
+
+      if Result = Source_File_Maps.No_Element then
+         Result := Repository.Out_Of_Scope_Sources.Find (File);
+      end if;
+      if Result = Source_File_Maps.No_Element then
+         declare
+            Inserted : Boolean;
+         begin
+            Repository.Out_Of_Scope_Sources.Insert
+              (File,
+               new Source_File_Type'(Unknown_Language, null, No_File, False),
+               Result,
+               Inserted);
+            pragma Unreferenced (Inserted);
+         end;
+      end if;
 
       --  If we found no displayed source, return the last one we found
 
