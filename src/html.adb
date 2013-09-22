@@ -132,13 +132,14 @@ package body HTML is
    procedure Add_Code
      (H           : in out Handle;
       Source_File : Virtual_File;
-      Language    : String)
+      Language    : GNATCOLL.Symbols.Symbol)
    is
       Pygments_File : constant Virtual_File := Create_From_Dir
         (Get_Tmp_Directory, +("eventail-" & (+Base_Name (Source_File))));
 
+      Lang          : constant String := GNATCOLL.Symbols.Get (Language).all;
       Args          : GNAT.OS_Lib.Argument_List :=
-        (new String'("-l"), new String'(Language),
+        (new String'("-l"), new String'(Lang),
          new String'("-f"), new String'("html"),
          new String'("-O"), new String'("nowrap=True"),
          new String'("-o"), new String'(+Full_Name (Pygments_File)),

@@ -102,21 +102,18 @@ package body Bundling is
       Source_Info   : Source_File_Type)
    is
       pragma Unreferenced (Repository);
-      pragma Unreferenced (Source_Info);
 
       Prj_Name : constant String := Project_Group_Name (Project_Group);
       Src_Name : constant String := +Base_Name (Source_File);
-
-      Src_Info : constant File_Info := Info (Project_Group.Tree, Source_File);
 
       H : HTML.Handle :=
          HTML.Start
            (Create_From_Base (+(Src_Name & ".html"), +Prj_Name),
             Get_Current_Dir,
-            Prj_Name & " - " & Src_Name & " (" & Language (Src_Info) & ")");
+            Prj_Name & " - " & Src_Name);
    begin
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
-      HTML.Add_Code (H, Source_File, Language (Src_Info));
+      HTML.Add_Code (H, Source_File, Source_Info.Language);
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
       HTML.Stop (H);
    end Bundle_Source_File;

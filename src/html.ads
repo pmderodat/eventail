@@ -1,3 +1,4 @@
+with GNATCOLL.Symbols;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
 package HTML is
@@ -19,7 +20,7 @@ package HTML is
    procedure Add_Code
      (H           : in out Handle;
       Source_File : Virtual_File;
-      Language    : String);
+      Language    : GNATCOLL.Symbols.Symbol);
 
    procedure Setup_Media;
 
