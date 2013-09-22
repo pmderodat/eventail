@@ -137,4 +137,56 @@ package body Repositories is
       Free (Repository.Env);
    end Free;
 
+   -------------------------
+   -- Resolve_Source_File --
+   -------------------------
+
+   function Resolve_Source_File
+     (Repository : Repository_Type;
+      File       : Virtual_File) return Source_File_Maps.Cursor
+   is
+      use Source_File_Maps;
+      use Full_Filename_Maps;
+
+      Result      : Source_File_Maps.Cursor := Source_File_Maps.No_Element;
+      Cur         : Source_File_Maps.Cursor;
+      Full        : Full_Filename_Maps.Cursor;
+      Source_File : Virtual_File;
+   begin
+      for Prj_Grp of Repository.Project_Groups loop
+         --  If needed, try to find the corresponding full filename
+
+         if not Is_Absolute_Path (File) then
+            Full := Prj_Grp.Full_Filenames.Find (Create (Base_Name (File)));
+            if Full = Full_Filename_Maps.No_Element then
+               Source_File := No_File;
+            else
+               Source_File := Element (Full);
+            end if;
+         else
+            Source_File := File;
+         end if;
+
+         --  And then look for this source file.
+
+         if Source_File /= No_File then
+            Cur := Prj_Grp.Source_Files.Find (Source_File);
+            if Cur /= Source_File_Maps.No_Element then
+               Result := Cur;
+
+               --  If the source file we found is displayed: this is *the* one
+               --  we were looking for. Return it!
+
+               if Element (Cur).Displayed then
+                  return Cur;
+               end if;
+            end if;
+         end if;
+      end loop;
+
+      --  If we found no displayed source, return the last one we found
+
+      return Result;
+   end Resolve_Source_File;
+
 end Repositories;

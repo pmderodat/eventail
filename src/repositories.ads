@@ -72,4 +72,13 @@ package Repositories is
    procedure Free (Repository : out Repository_Type);
    --  Free a repository and all projects it contains
 
+   function Resolve_Source_File
+     (Repository : Repository_Type;
+      File       : Virtual_File) return Source_File_Maps.Cursor;
+   --  Resolve a filename to a registered source file, or return No_Element if
+   --  There is no such file in all loaded projects. If the source file is
+   --  registered in several project groups, return the one in which it is
+   --  visible. If the source file is visible nowhere, the returned associated
+   --  project group is implementation defined.
+
 end Repositories;

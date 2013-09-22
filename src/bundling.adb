@@ -1,6 +1,7 @@
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 with HTML;
+with Library_Files;
 
 package body Bundling is
 
@@ -101,8 +102,6 @@ package body Bundling is
       Source_File   : Virtual_File;
       Source_Info   : Source_File_Type)
    is
-      pragma Unreferenced (Repository);
-
       Prj_Name : constant String := Project_Group_Name (Project_Group);
       Src_Name : constant String := +Base_Name (Source_File);
 
@@ -111,7 +110,12 @@ package body Bundling is
            (Create_From_Base (+(Src_Name & ".html"), +Prj_Name),
             Get_Current_Dir,
             Prj_Name & " - " & Src_Name);
+      Lib_Info : Library_Files.Library_Info_Type := (others => <>);
    begin
+      if Source_Info.XRef_File /= No_File then
+         Library_Files.Load (Repository, Source_Info.XRef_File, Lib_Info);
+      end if;
+
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
       HTML.Add_Code (H, Source_File, Source_Info.Language);
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
