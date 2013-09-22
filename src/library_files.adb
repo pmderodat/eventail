@@ -25,7 +25,7 @@ package body Library_Files is
 
    XRef_Allow : constant array (Character) of Boolean :=
      ('e' | 't'
-      | '=' | '<' | '>' | '^' => False,
+      | 'z' | '=' | '<' | '>' | '^' => False,
       others => True);
 
    function Get (Line : String_Access; Loc : Match_Location) return String;
