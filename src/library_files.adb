@@ -19,7 +19,7 @@ package body Library_Files is
    Decl_Regexp : constant Pattern_Matcher :=
       Compile
         ("^(\d+)([^0-9])(\d+)([^0-9])([a-zA-Z_0-9]+)"
-         & "([<{][^>}]+[>}])?( |$)");
+         & "([<{][^>}]+[>}])*( |$)");
    Use_Regexp  : constant Pattern_Matcher :=
       Compile ("^(\d+\|)?(\d+)([^0-9])(\d+)");
 
