@@ -86,4 +86,7 @@ package Repositories is
    --  in which it is visible. If the source file is visible nowhere, the
    --  returned associated project group is implementation defined.
 
+   function Name (Project_Group : Project_Group_Type) return String;
+   --  Return the name of a project group
+
 end Repositories;

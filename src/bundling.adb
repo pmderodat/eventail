@@ -1,24 +1,7 @@
-with GNATCOLL.Projects; use GNATCOLL.Projects;
-
 with HTML;
 with Library_Files;
 
 package body Bundling is
-
-   function Project_Group_Name
-      (Project_Group : Project_Group_Type) return String;
-   --  Return the name of the root project of a project group
-
-   ------------------------
-   -- Project_Group_Name --
-   ------------------------
-
-   function Project_Group_Name
-      (Project_Group : Project_Group_Type) return String
-   is
-   begin
-      return Name (Root_Project (Project_Group.Tree));
-   end Project_Group_Name;
 
    ----------------------
    -- Setup_Repository --
@@ -36,7 +19,7 @@ package body Bundling is
 
       for Prj_Grp of Repository.Project_Groups loop
          declare
-            Prj_Name : constant String := Project_Group_Name (Prj_Grp.all);
+            Prj_Name : constant String := Name (Prj_Grp.all);
             Dir_Name : constant Virtual_File := Create (+Prj_Name);
          begin
             HTML.Add_Item (Index, Prj_Name, Prj_Name & "/index.html");
@@ -67,7 +50,7 @@ package body Bundling is
       pragma Unreferenced (Repository);
       use Source_File_Maps;
 
-      Prj_Name : constant String := Project_Group_Name (Project_Group);
+      Prj_Name : constant String := Name (Project_Group);
       Index : HTML.Handle :=
          HTML.Start
            (Create_From_Base (+"index.html", +Prj_Name),
@@ -102,7 +85,7 @@ package body Bundling is
       Source_File   : Virtual_File;
       Source_Info   : Source_File_Type)
    is
-      Prj_Name : constant String := Project_Group_Name (Project_Group);
+      Prj_Name : constant String := Name (Project_Group);
       Src_Name : constant String := +Base_Name (Source_File);
 
       H : HTML.Handle :=

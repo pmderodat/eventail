@@ -209,4 +209,13 @@ package body Repositories is
       return Result;
    end Resolve_Source_File;
 
+   ----------
+   -- Name --
+   ----------
+
+   function Name (Project_Group : Project_Group_Type) return String is
+   begin
+      return Name (Root_Project (Project_Group.Tree));
+   end Name;
+
 end Repositories;
