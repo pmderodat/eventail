@@ -1,9 +1,11 @@
-with Ada.Strings.Unbounded;
-with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
 with GNAT.OS_Lib;
 with GNAT.Strings; use GNAT.Strings;
+
+with GNATCOLL.Utils; use GNATCOLL.Utils;
 
 package body HTML is
 
@@ -12,7 +14,7 @@ package body HTML is
    --  TODO??? Add HTML entities escaping where needed
 
    function HRef (H : Handle; File : String) return String;
-   procedure Escape (Text : in out String_Access);
+   procedure Escape (Text : in out GNAT.Strings.String_Access);
    function Locate (Program_Name : String) return String;
    procedure Free (Args : in out GNAT.OS_Lib.Argument_List);
 
@@ -30,9 +32,7 @@ package body HTML is
    -- Escape --
    ------------
 
-   procedure Escape (Text : in out String_Access) is
-      use Ada.Strings.Unbounded;
-
+   procedure Escape (Text : in out GNAT.Strings.String_Access) is
       Result : Unbounded_String;
    begin
       for C of Text.all loop
@@ -146,27 +146,46 @@ package body HTML is
          new String'(+Full_Name (Source_File)));
 
       Success       : Boolean;
-      Lines         : String_Access;
+      Content       : GNAT.Strings.String_Access;
 
    begin
       GNAT.OS_Lib.Spawn (Locate ("pygmentize"), Args, Success);
       if Success then
-         Lines := Read_File (Pygments_File);
+         Content := Read_File (Pygments_File);
       else
          Put_Line ("Error: pygmentize failed");
-         Lines := Read_File (Source_File);
-         Escape (Lines);
+         Content := Read_File (Source_File);
+         Escape (Content);
       end if;
 
       --  TODO??? generate appropriate warning/error on failure
 
-      if Lines = null then
+      if Content = null then
          Write (H.File, "<p>Could not read the source code file.</p>" & LF);
       else
          Write (H.File, "<pre><code>");
-         Write (H.File, Lines.all);
+
+         declare
+            Lines       : constant Unbounded_String_Array :=
+               Split (Content.all, ASCII.LF, Omit_Empty_Lines => False);
+            Last_Number : constant String := Image (Lines'Length, 0);
+            Width       : constant Integer := Last_Number'Length;
+         begin
+            Free (Content);
+
+            for I in Lines'Range loop
+               --  Prepend line numbers
+
+               Write
+                 (H.File,
+                  "<span class=""lineno"">"
+                  & Image (I - Lines'First + 1, Width, Padding => ' ')
+                  & "</span>  ");
+               Write (H.File, To_String (Lines (I)) & ASCII.LF);
+            end loop;
+         end;
+
          Write (H.File, "</code></pre>" & LF);
-         Free (Lines);
       end if;
 
       Delete (Pygments_File, Success);
@@ -227,7 +246,8 @@ package body HTML is
    ------------
 
    function Locate (Program_Name : String) return String is
-      Path : String_Access := GNAT.OS_Lib.Locate_Exec_On_Path (Program_Name);
+      Path : GNAT.Strings.String_Access :=
+         GNAT.OS_Lib.Locate_Exec_On_Path (Program_Name);
       Result : constant String := Path.all;
    begin
       Free (Path);
