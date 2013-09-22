@@ -29,6 +29,8 @@ package body Repositories is
 
       GNAT_Version  : GNAT.Strings.String_Access;
       Project_Group : Project_Group_Access;
+      Src_Files     : File_Array_Access;
+      Lib_Files     : Library_Info_Lists.List;
 
    begin
       --  Initialize the project environment if needed
@@ -39,7 +41,7 @@ package body Repositories is
          GNAT.Strings.Free (GNAT_Version);
       end if;
 
-      --  Then load all project files and add the to the repository
+      --  Then load all project files and add them to the repository
 
       for Prj_File of Project_Roots loop
          Project_Group := new Project_Group_Type;
@@ -51,6 +53,66 @@ package body Repositories is
            (Root_Project_Path => Prj_File,
             Env               => Repository.Env,
             Errors            => Report_Error'Access);
+
+         --  Also load source files that are part of these projects.  Note that
+         --  one single source file may belong to more than one project group.
+         --  However, each source file cannot be displayed in more than one
+         --  project group.
+
+         --  Display only sources that are part of the root project
+
+         for Recursive in False .. True loop
+            Src_Files := Source_Files
+              (Project   => Root_Project (Project_Group.Tree),
+               Recursive => Recursive);
+
+            for Src of Src_Files.all loop
+               declare
+                  Inserted : Boolean;
+                  Position : Source_File_Maps.Cursor;
+               begin
+                  --  Actually perform allocation only if insertion is
+                  --  successful.
+
+                  Project_Group.Source_Files.Insert
+                    (Src, null, Position, Inserted);
+                  if Inserted then
+                     Project_Group.Source_Files.Replace_Element
+                       (Position,
+                        new Source_File_Type'
+                          (Language  =>
+                              GNATCOLL.Symbols.Find
+                                (Languages,
+                                 Language (Info (Project_Group.Tree, Src))),
+                           XRef_File => No_File,
+                           Displayed => not Recursive));
+                  end if;
+               end;
+            end loop;
+
+            Unchecked_Free (Src_Files);
+         end loop;
+
+         --  Get xref files for all displayed sources
+
+         Library_Files
+           (Self                => Root_Project (Project_Group.Tree),
+            Including_Libraries => False,
+            List                => Lib_Files);
+         for Lib_Info of Lib_Files loop
+            declare
+               use Source_File_Maps;
+
+               Position : constant Cursor :=
+                  Project_Group.Source_Files.Find (Lib_Info.Source_File);
+            begin
+               if Position /= No_Element then
+                  Element (Position).XRef_File := Lib_Info.Library_File;
+               end if;
+            end;
+         end loop;
+         Lib_Files.Clear;
+
       end loop;
    end Load;
 

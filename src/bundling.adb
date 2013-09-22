@@ -1,5 +1,3 @@
-with Ada.Containers.Generic_Constrained_Array_Sort;
-
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 with HTML;
@@ -65,20 +63,9 @@ package body Bundling is
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type)
    is
-
-      Src_Files : File_Array_Access :=
-         Source_Files (Root_Project (Project_Group.Tree));
-
-      subtype Src_Idx is Positive range Src_Files'First .. Src_Files'Last;
-      subtype Src_Array is File_Array (Src_Idx);
-
-      procedure Sort_Files is new Ada.Containers.Generic_Constrained_Array_Sort
-        (Index_Type   => Src_Idx,
-         Element_Type => Virtual_File,
-         Array_Type   => Src_Array);
+      use Source_File_Maps;
 
       Prj_Name : constant String := Project_Group_Name (Project_Group);
-
       Index : HTML.Handle :=
          HTML.Start
            (Create_From_Base (+"index.html", +Prj_Name),
@@ -88,21 +75,21 @@ package body Bundling is
       HTML.Add_Backlink (Index, "Repository index", "../index.html");
       HTML.Start_List (Index);
 
-      Sort_Files (Src_Files.all);
-
-      for Src_File of Src_Files.all loop
-         declare
-            Src_Name : constant String := +Base_Name (Src_File);
-         begin
-            HTML.Add_Item (Index, Src_Name, Src_Name & ".html");
-         end;
-         Bundle_Source_File (Repository, Project_Group, Src_File);
+      for Cur in Project_Group.Source_Files.Iterate loop
+         if Element (Cur).Displayed then
+            declare
+               Src_File : Virtual_File renames Key (Cur);
+               Src_Name : constant String := +Base_Name (Src_File);
+            begin
+               HTML.Add_Item (Index, Src_Name, Src_Name & ".html");
+               Bundle_Source_File (Repository, Project_Group, Src_File);
+            end;
+         end if;
       end loop;
 
       HTML.Stop_List (Index);
       HTML.Add_Backlink (Index, "Repository index", "../index.html");
       HTML.Stop (Index);
-      Unchecked_Free (Src_Files);
    end Bundle_Project_Group;
 
    ------------------------

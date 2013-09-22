@@ -2,6 +2,7 @@ with Ada.Containers.Ordered_Maps;
 with Ada.Containers.Vectors;
 
 with GNATCOLL.Projects; use GNATCOLL.Projects;
+with GNATCOLL.Symbols;
 with GNATCOLL.VFS;      use GNATCOLL.VFS;
 
 package Repositories is
@@ -19,11 +20,19 @@ package Repositories is
    type Repository_Access is access Repository_Type;
    type Project_Group_Type;
    type Project_Group_Access is access Project_Group_Type;
+   type Source_File_Type;
+   type Source_File_Access is access Source_File_Type;
 
    package Project_Group_Maps is new Ada.Containers.Ordered_Maps
      (Key_Type     => Virtual_File,
       Element_Type => Project_Group_Access);
    --  Each project group is identified by its root project GPR file
+
+   package Source_File_Maps is new Ada.Containers.Ordered_Maps
+     (Key_Type     => Virtual_File,
+      Element_Type => Source_File_Access);
+   --  Each source file has associated information: language, xref file,
+   --  whether it is included in its project group view.
 
    type Repository_Type is record
       Env            : Project_Environment_Access := null;
@@ -31,8 +40,18 @@ package Repositories is
    end record;
 
    type Project_Group_Type is record
-      Tree : Project_Tree;
+      Tree         : Project_Tree;
+      Source_Files : Source_File_Maps.Map;
    end record;
+
+   type Source_File_Type is record
+      Language  : GNATCOLL.Symbols.Symbol;
+      XRef_File : Virtual_File;
+      Displayed : Boolean;
+   end record;
+
+   Languages : constant GNATCOLL.Symbols.Symbol_Table_Access :=
+      GNATCOLL.Symbols.Allocate;
 
    package Project_File_Vectors is new Ada.Containers.Vectors
      (Index_Type   => Natural,
