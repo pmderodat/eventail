@@ -1,0 +1,41 @@
+with "gnatcoll";
+
+project Eventail is
+
+   --  Build mode. Default to "dev" to make it shorter for developers.
+   --  The other modes are for nightly scripts and are better made explicit
+   --- anyway:
+   type Build_Mode_Type is ("dev", "prod", "boot");
+   Build_Mode : Build_Mode_Type := external("BUILD_MODE", "dev");
+
+   package Compiler is
+
+      common_switches := 
+         ("-gnat12", "-gnatwae", "-gnatyg", "-gnata");
+
+      mode_switches := ();
+      debug_switches := ("-O0", "-g");
+
+      case Build_Mode is
+         when "dev" =>
+            mode_switches := debug_switches;
+
+         when "prod" =>
+            mode_switches := ("-O2");
+
+         when "boot" =>
+            mode_switches := debug_switches & ("-fdump-xref");
+
+       end case;
+
+       for Default_Switches ("ada")
+          use common_switches & mode_switches;
+
+   end Compiler;
+
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir use "bin";
+   for Main use ("eventail.adb");
+
+end Eventail;
