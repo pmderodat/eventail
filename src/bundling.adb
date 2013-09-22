@@ -1,3 +1,5 @@
+with Ada.Containers.Generic_Constrained_Array_Sort;
+
 with GNATCOLL.Projects; use GNATCOLL.Projects;
 
 with HTML;
@@ -63,10 +65,19 @@ package body Bundling is
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type)
    is
-      Prj_Name : constant String := Project_Group_Name (Project_Group);
 
       Src_Files : File_Array_Access :=
          Source_Files (Root_Project (Project_Group.Tree));
+
+      subtype Src_Idx is Positive range Src_Files'First .. Src_Files'Last;
+      subtype Src_Array is File_Array (Src_Idx);
+
+      procedure Sort_Files is new Ada.Containers.Generic_Constrained_Array_Sort
+        (Index_Type   => Src_Idx,
+         Element_Type => Virtual_File,
+         Array_Type   => Src_Array);
+
+      Prj_Name : constant String := Project_Group_Name (Project_Group);
 
       Index : HTML.Handle :=
          HTML.Start
@@ -76,6 +87,8 @@ package body Bundling is
    begin
       HTML.Add_Backlink (Index, "Repository index", "../index.html");
       HTML.Start_List (Index);
+
+      Sort_Files (Src_Files.all);
 
       for Src_File of Src_Files.all loop
          declare
