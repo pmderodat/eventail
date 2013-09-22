@@ -100,7 +100,7 @@ package body Bundling is
       end if;
 
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
-      HTML.Add_Code (H, Source_File, Source_Info.Language);
+      HTML.Add_Code (H, Source_File, Source_Info, Lib_Info);
       HTML.Add_Backlink (H, Prj_Name & " index", "index.html");
       HTML.Stop (H);
    end Bundle_Source_File;

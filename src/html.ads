@@ -1,5 +1,7 @@
-with GNATCOLL.Symbols;
 with GNATCOLL.VFS; use GNATCOLL.VFS;
+
+with Library_Files;
+with Repositories;
 
 package HTML is
 
@@ -18,9 +20,10 @@ package HTML is
    procedure Add_Item (H : in out Handle; Name, HRef : String);
 
    procedure Add_Code
-     (H           : in out Handle;
-      Source_File : Virtual_File;
-      Language    : GNATCOLL.Symbols.Symbol);
+     (H            : in out Handle;
+      Source_File  : Virtual_File;
+      Source_Info  : Repositories.Source_File_Type;
+      Library_Info : Library_Files.Library_Info_Type);
 
    procedure Setup_Media;
 
