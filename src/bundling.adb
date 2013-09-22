@@ -63,6 +63,7 @@ package body Bundling is
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type)
    is
+      pragma Unreferenced (Repository);
       use Source_File_Maps;
 
       Prj_Name : constant String := Project_Group_Name (Project_Group);
@@ -78,11 +79,9 @@ package body Bundling is
       for Cur in Project_Group.Source_Files.Iterate loop
          if Element (Cur).Displayed then
             declare
-               Src_File : Virtual_File renames Key (Cur);
-               Src_Name : constant String := +Base_Name (Src_File);
+               Src_Name : constant String := +Base_Name (Key (Cur));
             begin
                HTML.Add_Item (Index, Src_Name, Src_Name & ".html");
-               Bundle_Source_File (Repository, Project_Group, Src_File);
             end;
          end if;
       end loop;
@@ -99,9 +98,11 @@ package body Bundling is
    procedure Bundle_Source_File
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type;
-      Source_File   : Virtual_File)
+      Source_File   : Virtual_File;
+      Source_Info   : Source_File_Type)
    is
       pragma Unreferenced (Repository);
+      pragma Unreferenced (Source_Info);
 
       Prj_Name : constant String := Project_Group_Name (Project_Group);
       Src_Name : constant String := +Base_Name (Source_File);
@@ -125,10 +126,23 @@ package body Bundling is
    ------------
 
    procedure Bundle (Repository : Repository_Type) is
+      use Source_File_Maps;
    begin
       Setup_Repository (Repository);
+
       for Prj_Grp of Repository.Project_Groups loop
          Bundle_Project_Group (Repository, Prj_Grp.all);
+
+         for Cur in Prj_Grp.Source_Files.Iterate loop
+            declare
+               Src_File : constant Source_File_Access := Element (Cur);
+            begin
+               if Src_File.Displayed then
+                  Bundle_Source_File
+                    (Repository, Prj_Grp.all, Key (Cur), Src_File.all);
+               end if;
+            end;
+         end loop;
       end loop;
    end Bundle;
 

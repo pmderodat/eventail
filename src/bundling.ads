@@ -12,12 +12,13 @@ package Bundling is
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type);
    --  Generate the part of the bundle for a project group: the project group
-   --  index and then source files.
+   --  index.
 
    procedure Bundle_Source_File
      (Repository    : Repository_Type;
       Project_Group : Project_Group_Type;
-      Source_File   : Virtual_File);
+      Source_File   : Virtual_File;
+      Source_Info   : Source_File_Type);
    --  Generate the part of the bundle for a single source file
 
    procedure Bundle (Repository : Repository_Type);
