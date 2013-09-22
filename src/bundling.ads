@@ -1,0 +1,26 @@
+with GNATCOLL.VFS; use GNATCOLL.VFS;
+
+with Repositories; use Repositories;
+
+package Bundling is
+
+   procedure Setup_Repository (Repository : Repository_Type);
+   --  Setup repository-level bundle files: like the general index, style
+   --  sheets, project directories.
+
+   procedure Bundle_Project_Group
+     (Repository    : Repository_Type;
+      Project_Group : Project_Group_Type);
+   --  Generate the part of the bundle for a project group: the project group
+   --  index and then source files.
+
+   procedure Bundle_Source_File
+     (Repository    : Repository_Type;
+      Project_Group : Project_Group_Type;
+      Source_File   : Virtual_File);
+   --  Generate the part of the bundle for a single source file
+
+   procedure Bundle (Repository : Repository_Type);
+   --  Generate the whole bundle
+
+end Bundling;

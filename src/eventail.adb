@@ -1,9 +1,8 @@
 with Ada.Command_Line;
-with Ada.Containers; use Ada.Containers;
-with Ada.Text_IO;    use Ada.Text_IO;
 
 with GNATCOLL.VFS; use GNATCOLL.VFS;
 
+with Bundling;     use Bundling;
 with Repositories; use Repositories;
 
 procedure Eventail is
@@ -15,8 +14,5 @@ begin
    end loop;
 
    Load (Input, R);
-
-   Put_Line ("This is Eventail!");
-   Put_Line
-     (Count_Type'Image (R.Project_Groups.Length) & " projects are loaded");
+   Bundle (R);
 end Eventail;
