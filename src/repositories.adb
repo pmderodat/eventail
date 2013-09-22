@@ -86,6 +86,11 @@ package body Repositories is
                                  Language (Info (Project_Group.Tree, Src))),
                            XRef_File => No_File,
                            Displayed => not Recursive));
+
+                     --  Update the full filenames index
+
+                     Project_Group.Full_Filenames.Insert
+                        (Create (Base_Name (Src)), Src);
                   end if;
                end;
             end loop;

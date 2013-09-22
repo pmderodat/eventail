@@ -34,14 +34,21 @@ package Repositories is
    --  Each source file has associated information: language, xref file,
    --  whether it is included in its project group view.
 
+   package Full_Filename_Maps is new Ada.Containers.Ordered_Maps
+     (Key_Type     => Virtual_File,
+      Element_Type => Virtual_File);
+   --  Enable one to get a full filename from its basename. This is necessary
+   --  when dealing with dependency lines in Library Files.
+
    type Repository_Type is record
       Env            : Project_Environment_Access := null;
       Project_Groups : Project_Group_Maps.Map;
    end record;
 
    type Project_Group_Type is record
-      Tree         : Project_Tree;
-      Source_Files : Source_File_Maps.Map;
+      Tree             : Project_Tree;
+      Source_Files     : Source_File_Maps.Map;
+      Full_Filenames   : Full_Filename_Maps.Map;
    end record;
 
    type Source_File_Type is record
