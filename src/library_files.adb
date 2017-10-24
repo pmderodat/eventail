@@ -161,7 +161,6 @@ package body Library_Files is
                if Matches (1) /= No_Match then
                   declare
                      use Source_File_Maps;
-                     use Full_Filename_Maps;
 
                      File : constant Virtual_File :=
                         Create (+Unquote (Get (Line, Matches (1))));

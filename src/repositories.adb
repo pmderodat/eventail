@@ -30,7 +30,7 @@ package body Repositories is
       GNAT_Version  : GNAT.Strings.String_Access;
       Project_Group : Project_Group_Access;
       Src_Files     : File_Array_Access;
-      Lib_Files     : Library_Info_Lists.List;
+      Lib_Files     : Library_Info_List;
 
    begin
       --  Initialize the project environment if needed
@@ -109,8 +109,10 @@ package body Repositories is
             declare
                use Source_File_Maps;
 
+               Src_File : constant Virtual_File :=
+                 Lib_Info.Source.File;
                Position : Cursor :=
-                  Project_Group.Source_Files.Find (Lib_Info.Source_File);
+                  Project_Group.Source_Files.Find (Src_File);
             begin
                if Position /= No_Element then
                   Element (Position).XRef_File := Lib_Info.Library_File;
@@ -118,7 +120,7 @@ package body Repositories is
                   --  This Library File also belongs to the "other file"
 
                   Position := Project_Group.Source_Files.Find
-                    (Project_Group.Tree.Other_File (Lib_Info.Source_File));
+                    (Project_Group.Tree.Other_File (Src_File));
                   if Position /= No_Element then
                      Element (Position).XRef_File := Lib_Info.Library_File;
                   end if;
